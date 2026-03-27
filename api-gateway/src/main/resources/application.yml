@@ -194,6 +194,20 @@ spring:
         - id: robo-analyzer-service
           uri: http://127.0.0.1:5502
           predicates:
+            - Path=/robo/analyze/**,/robo/pipeline/**
+          filters:
+            - RemoveRequestHeader=Origin
+
+        - id: robo-catalog-service
+          uri: http://127.0.0.1:5503
+          predicates:
+            - Path=/robo/glossary/**,/robo/business-calendar/**
+          filters:
+            - RemoveRequestHeader=Origin
+
+        - id: robo-glossary-service
+          uri: http://127.0.0.1:5504
+          predicates:
             - Path=/robo/**
           filters:
             - RemoveRequestHeader=Origin
