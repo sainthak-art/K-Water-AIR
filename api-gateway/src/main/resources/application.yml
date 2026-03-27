@@ -51,10 +51,26 @@ spring:
             - RewritePath=/api/gateway/antlr/(?<segment>.*), /antlr/$\{segment}
             - RemoveRequestHeader=Origin
         
-        - id: api-gateway-robo
+        - id: api-gateway-robo-analyzer
           uri: http://127.0.0.1:5502
           predicates:
-            - Path=/api/gateway/robo/**
+            - Path=/api/gateway/robo/analyze/**,/api/gateway/robo/pipeline/**
+          filters:
+            - RewritePath=/api/gateway/robo/(?<segment>.*), /robo/$\{segment}
+            - RemoveRequestHeader=Origin
+
+        - id: api-gateway-robo-catalog
+          uri: http://127.0.0.1:5503
+          predicates:
+            - Path=/api/gateway/robo/schema/**,/api/gateway/robo/check-data/**,/api/gateway/robo/graph/**,/api/gateway/robo/delete/**,/api/gateway/robo/lineage/**
+          filters:
+            - RewritePath=/api/gateway/robo/(?<segment>.*), /robo/$\{segment}
+            - RemoveRequestHeader=Origin
+
+        - id: api-gateway-robo-glossary
+          uri: http://127.0.0.1:5504
+          predicates:
+            - Path=/api/gateway/robo/glossary/**,/api/gateway/robo/business-calendar/**
           filters:
             - RewritePath=/api/gateway/robo/(?<segment>.*), /robo/$\{segment}
             - RemoveRequestHeader=Origin
