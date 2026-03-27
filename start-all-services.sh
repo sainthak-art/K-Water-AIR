@@ -123,7 +123,41 @@ uvicorn api.main:app --host 0.0.0.0 --port 8001 > /tmp/architect.log 2>&1 &
 ARCH_PID=$!
 print_status "ROBO Architect 시작됨 (PID: $ARCH_PID)"
 
-# 7. Air-SWMM (FastAPI)
+# 7. ROBO Data Catalog (FastAPI)
+echo ""
+print_info "7. ROBO Data Catalog 시작 (포트 5503)..."
+cd "$SCRIPT_DIR/robo-data-catalog"
+if [ ! -d ".venv" ] && [ ! -d "venv" ]; then
+  python3 -m venv .venv
+  source .venv/bin/activate
+  pip install -q -r requirements.txt
+elif [ -d ".venv" ]; then
+  source .venv/bin/activate
+elif [ -d "venv" ]; then
+  source venv/bin/activate
+fi
+uvicorn main:app --host 0.0.0.0 --port 5503 > /tmp/robo-data-catalog.log 2>&1 &
+CATALOG_PID=$!
+print_status "ROBO Data Catalog 시작됨 (PID: $CATALOG_PID)"
+
+# 8. ROBO Data Glossary (FastAPI)
+echo ""
+print_info "8. ROBO Data Glossary 시작 (포트 5504)..."
+cd "$SCRIPT_DIR/robo-data-glossary"
+if [ ! -d ".venv" ] && [ ! -d "venv" ]; then
+  python3 -m venv .venv
+  source .venv/bin/activate
+  pip install -q -r requirements.txt
+elif [ -d ".venv" ]; then
+  source .venv/bin/activate
+elif [ -d "venv" ]; then
+  source venv/bin/activate
+fi
+uvicorn main:app --host 0.0.0.0 --port 5504 > /tmp/robo-data-glossary.log 2>&1 &
+GLOSSARY_PID=$!
+print_status "ROBO Data Glossary 시작됨 (PID: $GLOSSARY_PID)"
+
+# 9. Air-SWMM (FastAPI)
 echo ""
 print_info "7. Air-SWMM 시작 (포트 $AIR_SWMM_PORT)..."
 cd "$SCRIPT_DIR/air-swmm/backend"
@@ -153,6 +187,8 @@ echo "  ROBO Analyzer:    http://localhost:5502 (via /robo/*)"
 echo "  Text2SQL:         http://localhost:8000 (via /text2sql/*)"
 echo "  OLAP:             http://localhost:8002 (via /olap/*)"
 echo "  Architect:        http://localhost:8001 (via /architect/*)"
+echo "  Data Catalog:     http://localhost:5503 (via /robo/glossary/*, /robo/business-calendar/*)"
+echo "  Data Glossary:    http://localhost:5504 (via /robo/*)"
 echo "  Air-SWMM:         http://localhost:$AIR_SWMM_PORT (via /air-swmm/*)"
 echo ""
 echo "📝 로그 파일:"
@@ -162,6 +198,8 @@ echo "  /tmp/robo-analyzer.log"
 echo "  /tmp/text2sql.log"
 echo "  /tmp/olap.log"
 echo "  /tmp/architect.log"
+echo "  /tmp/robo-data-catalog.log"
+echo "  /tmp/robo-data-glossary.log"
 echo "  /tmp/air-swmm.log"
 echo ""
 echo "🔧 헬스 체크: curl http://localhost:9000/actuator/health"
@@ -170,7 +208,7 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo ""
 
 # PID 저장
-echo "$GATEWAY_PID $ANTLR_PID $ROBO_PID $T2SQL_PID $OLAP_PID $ARCH_PID $AIR_SWMM_PID" > /tmp/robo-services.pids
+echo "$GATEWAY_PID $ANTLR_PID $ROBO_PID $T2SQL_PID $OLAP_PID $ARCH_PID $CATALOG_PID $GLOSSARY_PID $AIR_SWMM_PID" > /tmp/robo-services.pids
 print_info "PID 저장됨: /tmp/robo-services.pids"
 echo ""
 

@@ -143,6 +143,22 @@ spring:
             connect-timeout: 5000
             response-timeout: 600000
         
+        - id: api-gateway-catalog
+          uri: http://127.0.0.1:5503
+          predicates:
+            - Path=/api/gateway/catalog/**
+          filters:
+            - RewritePath=/api/gateway/catalog/(?<segment>.*), /$\{segment}
+            - RemoveRequestHeader=Origin
+
+        - id: api-gateway-glossary
+          uri: http://127.0.0.1:5504
+          predicates:
+            - Path=/api/gateway/glossary/**
+          filters:
+            - RewritePath=/api/gateway/glossary/(?<segment>.*), /$\{segment}
+            - RemoveRequestHeader=Origin
+
         - id: api-gateway-data-fabric
           uri: http://127.0.0.1:8004
           predicates:
