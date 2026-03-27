@@ -217,14 +217,14 @@ spring:
         - id: robo-catalog-service
           uri: http://127.0.0.1:5503
           predicates:
-            - Path=/robo/glossary/**,/robo/business-calendar/**
+            - Path=/robo/schema/**,/robo/check-data/**,/robo/graph/**,/robo/delete/**,/robo/lineage/**
           filters:
             - RemoveRequestHeader=Origin
 
         - id: robo-glossary-service
           uri: http://127.0.0.1:5504
           predicates:
-            - Path=/robo/**
+            - Path=/robo/glossary/**,/robo/business-calendar/**
           filters:
             - RemoveRequestHeader=Origin
         
