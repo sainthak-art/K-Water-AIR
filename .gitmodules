@@ -1,6 +1,3 @@
-[submodule "antlr-code-parser"]
-	path = antlr-code-parser
-	url = https://github.com/uengine-oss/antlr-code-parser.git
 [submodule "data-fabric"]
 	path = data-fabric
 	url = https://github.com/jinyoung/robo-data-fabric.git
@@ -40,3 +37,6 @@
 [submodule "robo-data-glossary"]
 	path = robo-data-glossary
 	url = https://github.com/uengine-oss/robo-data-glossary.git
+[submodule "air-swmm"]
+	path = air-swmm
+	url = https://github.com/sainthak-art/air-swmm

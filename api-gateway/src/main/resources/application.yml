@@ -331,6 +331,25 @@ spring:
             - RemoveRequestHeader=Origin
         
         # ============================================
+        # Air-SWMM Service (FastAPI) - Port 8007 (or AIR_SWMM_PORT)
+        # ============================================
+        - id: api-gateway-air-swmm
+          uri: http://127.0.0.1:${AIR_SWMM_PORT:8007}
+          predicates:
+            - Path=/api/gateway/air-swmm/**
+          filters:
+            - RewritePath=/api/gateway/air-swmm/(?<segment>.*), /api/$\{segment}
+            - RemoveRequestHeader=Origin
+            
+        - id: air-swmm-service
+          uri: http://127.0.0.1:${AIR_SWMM_PORT:8007}
+          predicates:
+            - Path=/air-swmm/**
+          filters:
+            - RewritePath=/air-swmm/(?<segment>.*), /api/$\{segment}
+            - RemoveRequestHeader=Origin
+        
+        # ============================================
         # Frontend (Vue3) - Port 3000
         # 모든 나머지 요청은 프론트엔드로 라우팅 (맨 마지막에 위치해야 함)
         # Vite 개발 서버가 IPv6(::1)로 바인딩되므로 localhost 사용

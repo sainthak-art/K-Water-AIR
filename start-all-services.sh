@@ -8,9 +8,12 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "  Robo Analyzer 마이크로서비스 시작"
+echo "  Robo Analyzer & Air-SWMM 마이크로서비스 시작"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
+
+# 파라미터로 받은 포트 설정 (API Gateway도 주입받을 수 있도록 최상단 선언)
+export AIR_SWMM_PORT=${1:-8007}
 
 # 색상 정의
 GREEN='\033[0;32m'
@@ -29,6 +32,26 @@ print_info() {
 print_warn() {
   echo -e "${YELLOW}[!]${NC} $1"
 }
+
+# 환경 변수 로드
+echo ""
+print_info "환경변수(env_setup.sh) 로딩..."
+if [ -f "$SCRIPT_DIR/env_setup.sh" ]; then
+  source "$SCRIPT_DIR/env_setup.sh"
+else
+  print_warn "env_setup.sh 파일이 존재하지 않습니다. 스킵합니다."
+fi
+
+# 0. 인프라 서비스 시작 (Docker Compose)
+echo ""
+print_info "0. 인프라 서비스 (Docker Compose) 시작..."
+cd "$SCRIPT_DIR/infra"
+if command -v docker-compose &> /dev/null; then
+  docker-compose up -d
+else
+  docker compose up -d
+fi
+print_status "Docker 서비스 실행 완료"
 
 # 1. API Gateway (Spring Cloud Gateway)
 echo ""
@@ -100,6 +123,23 @@ uvicorn api.main:app --host 0.0.0.0 --port 8001 > /tmp/architect.log 2>&1 &
 ARCH_PID=$!
 print_status "ROBO Architect 시작됨 (PID: $ARCH_PID)"
 
+# 7. Air-SWMM (FastAPI)
+echo ""
+print_info "7. Air-SWMM 시작 (포트 $AIR_SWMM_PORT)..."
+cd "$SCRIPT_DIR/air-swmm/backend"
+if [ ! -d ".venv" ] && [ ! -d "venv" ]; then
+  python3 -m venv .venv
+  source .venv/bin/activate
+  pip install -q -r requirements.txt
+elif [ -d ".venv" ]; then
+  source .venv/bin/activate
+elif [ -d "venv" ]; then
+  source venv/bin/activate
+fi
+uvicorn main:app --host 0.0.0.0 --port $AIR_SWMM_PORT > /tmp/air-swmm.log 2>&1 &
+AIR_SWMM_PID=$!
+print_status "Air-SWMM 시작됨 (PID: $AIR_SWMM_PID)"
+
 sleep 2
 
 echo ""
@@ -113,6 +153,7 @@ echo "  ROBO Analyzer:    http://localhost:5502 (via /robo/*)"
 echo "  Text2SQL:         http://localhost:8000 (via /text2sql/*)"
 echo "  OLAP:             http://localhost:8002 (via /olap/*)"
 echo "  Architect:        http://localhost:8001 (via /architect/*)"
+echo "  Air-SWMM:         http://localhost:$AIR_SWMM_PORT (via /air-swmm/*)"
 echo ""
 echo "📝 로그 파일:"
 echo "  /tmp/api-gateway.log"
@@ -121,6 +162,7 @@ echo "  /tmp/robo-analyzer.log"
 echo "  /tmp/text2sql.log"
 echo "  /tmp/olap.log"
 echo "  /tmp/architect.log"
+echo "  /tmp/air-swmm.log"
 echo ""
 echo "🔧 헬스 체크: curl http://localhost:9000/actuator/health"
 echo ""
@@ -128,7 +170,7 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo ""
 
 # PID 저장
-echo "$GATEWAY_PID $ANTLR_PID $ROBO_PID $T2SQL_PID $OLAP_PID $ARCH_PID" > /tmp/robo-services.pids
+echo "$GATEWAY_PID $ANTLR_PID $ROBO_PID $T2SQL_PID $OLAP_PID $ARCH_PID $AIR_SWMM_PID" > /tmp/robo-services.pids
 print_info "PID 저장됨: /tmp/robo-services.pids"
 echo ""
 
