@@ -365,20 +365,11 @@ spring:
         # ============================================
         # Air-SWMM Service (FastAPI) - Port 8007 (or AIR_SWMM_PORT)
         # ============================================
-        - id: api-gateway-air-swmm
-          uri: http://127.0.0.1:${AIR_SWMM_PORT:8007}
-          predicates:
-            - Path=/api/gateway/air-swmm/**
-          filters:
-            - RewritePath=/api/gateway/air-swmm/(?<segment>.*), /api/$\{segment}
-            - RemoveRequestHeader=Origin
-            
         - id: air-swmm-service
           uri: http://127.0.0.1:${AIR_SWMM_PORT:8007}
           predicates:
             - Path=/air-swmm/**
           filters:
-            - RewritePath=/air-swmm/(?<segment>.*), /api/$\{segment}
             - RemoveRequestHeader=Origin
         
         # ============================================

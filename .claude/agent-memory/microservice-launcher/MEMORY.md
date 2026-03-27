@@ -84,3 +84,29 @@ Working directory: /Users/uengine/robo-analyz
 - robo-mysql-sample: port 3307
 - nkesa-mysql: port 3308
 - data-fabric-postgres: port 5433
+
+---
+
+## Project: k-water-air
+Working directory: /Users/uengine/k-water-air
+
+## Service Registry (Port -> Service -> Startup Command)
+
+| Port | Service | Startup Command | Log |
+|------|---------|-----------------|-----|
+| 5503 | ROBO Data Catalog | `cd /Users/uengine/k-water-air/robo-data-catalog && .venv/bin/uvicorn main:app --host 0.0.0.0 --port 5503` | /tmp/robo-data-catalog.log |
+| 5504 | ROBO Data Glossary | `cd /Users/uengine/k-water-air/robo-data-glossary && .venv/bin/uvicorn main:app --host 0.0.0.0 --port 5504` | /tmp/robo-data-glossary.log |
+
+## Health Check Endpoints
+- ROBO Data Catalog (5503): GET /health -> 200
+- ROBO Data Glossary (5504): GET /health -> 200
+
+## Python Version
+- System default (python3) is 3.9 - NOT compatible with these services
+- Services use Python 3.10+ syntax (str | dict, datetime.UTC)
+- Always create .venv with python3.11: `python3.11 -m venv .venv`
+
+## requirements.txt Known Issues
+- Both services originally had `langchain>=1.2.4` (wrong version, max is 0.3.x for py39 pip resolver)
+- With Python 3.11 venv, pip correctly resolves to langchain 1.x (latest)
+- langchain-community>=0.4.1 also resolves correctly on 3.11
